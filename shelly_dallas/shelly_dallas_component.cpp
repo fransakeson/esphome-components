@@ -33,12 +33,6 @@ void ShellyDallasComponent::setup() {
 
   yield();
 
-																			  
-													   
-						 
-
-																			   
-
   std::vector<uint64_t> raw_sensors;
   {
     InterruptLock lock;
@@ -133,17 +127,8 @@ void ShellyDallasComponent::update() {
   if (!result) {
     ESP_LOGE(TAG, "Requesting conversion failed");
     this->status_set_warning();
-										 
-								 
-	 
     return;
   }
-
-   
-					   
-							
-															 
-   
 
   for (auto *sensor : this->sensors_) {
     this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion(), [this, sensor] {
@@ -203,7 +188,6 @@ bool ICACHE_RAM_ATTR ShellyDallasTemperatureSensor::read_scratch_pad() {
 
   for (unsigned char &i : this->scratch_pad_) {
     i = wire->read8();
-	 
   }
   return true;
 }
@@ -212,18 +196,8 @@ bool ShellyDallasTemperatureSensor::setup_sensor() {
   {
     InterruptLock lock;
 
-								 
-												  
-
     r = this->read_scratch_pad();
-						
-	 
   }
-
-			  
- 
-											  
-									
 
   if (!r) {
     ESP_LOGE(TAG, "Reading scratchpad failed: reset");
@@ -279,16 +253,6 @@ bool ShellyDallasTemperatureSensor::setup_sensor() {
   return true;
 }
 bool ShellyDallasTemperatureSensor::check_scratch_pad() {
-																				
-							   
-
-									
-							  
-																 
-			
-			
-																 
-   
 
 #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
   ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
@@ -297,11 +261,6 @@ bool ShellyDallasTemperatureSensor::check_scratch_pad() {
             crc8(this->scratch_pad_, 8));
 #endif
   return crc8(this->scratch_pad_, 8) == this->scratch_pad_[8];
-																					
-								
-																						   
-   
-											
 }
 float ShellyDallasTemperatureSensor::get_temp_c() {
   int16_t temp = (int16_t(this->scratch_pad_[1]) << 11) | (int16_t(this->scratch_pad_[0]) << 3);

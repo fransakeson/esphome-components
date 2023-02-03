@@ -12,13 +12,13 @@ const int ONE_WIRE_ROM_SEARCH = 0xF0;
 
 ESPOneWire::ESPOneWire(InternalGPIOPin *in_pin, InternalGPIOPin *out_pin) : in_pin_(in_pin), out_pin_(out_pin) {
   this->in_pin_->pin_mode(esphome::gpio::FLAG_INPUT);
-  this->out_pin_->pin_mode(esphome::gpio::FLAG_OUTPUT);  
-  this->out_pin_->digital_write(true);  
+  this->out_pin_->pin_mode(esphome::gpio::FLAG_OUTPUT);
+  this->out_pin_->digital_write(true);
 }
 
 bool HOT ICACHE_RAM_ATTR ESPOneWire::reset() {
   uint8_t retries = 125;
-  
+
   do {
     if (--retries == 0)
       return false;
