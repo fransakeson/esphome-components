@@ -4,7 +4,7 @@
 namespace esphome {
 namespace shelly_dallas {
 
-static const char *TAG = "dallas.sensor";
+static const char *const TAG = "dallas.sensor";
 
 static const uint8_t DALLAS_MODEL_DS18S20 = 0x10;
 static const uint8_t DALLAS_MODEL_DS1822 = 0x22;
@@ -32,6 +32,13 @@ void ShellyDallasComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up ShellyDallasComponent...");
 
   yield();
+
+																			  
+													   
+						 
+
+																			   
+
   std::vector<uint64_t> raw_sensors;
   {
     InterruptLock lock;
@@ -39,10 +46,10 @@ void ShellyDallasComponent::setup() {
   }
 
   for (auto &address : raw_sensors) {
-    std::string s = uint64_to_string(address);
+//    std::string s = uint64_to_string(address);
     auto *address8 = reinterpret_cast<uint8_t *>(&address);
     if (crc8(address8, 7) != address8[7]) {
-      ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", s.c_str());
+      ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", format_hex(address).c_str());
       continue;
     }
     if (address8[0] != DALLAS_MODEL_DS18S20 && address8[0] != DALLAS_MODEL_DS1822 &&
@@ -54,7 +61,7 @@ void ShellyDallasComponent::setup() {
     this->found_sensors_.push_back(address);
   }
 
-  for (auto sensor : this->sensors_) {
+  for (auto *sensor : this->sensors_) {
     if (sensor->get_index().has_value()) {
       if (*sensor->get_index() >= this->found_sensors_.size()) {
         this->status_set_error();
@@ -79,8 +86,8 @@ void ShellyDallasComponent::dump_config() {
   } else {
     ESP_LOGD(TAG, "  Found sensors:");
     for (auto &address : this->found_sensors_) {
-      std::string s = uint64_to_string(address);
-      ESP_LOGD(TAG, "    0x%s", s.c_str());
+//      std::string s = uint64_to_string(address);
+      ESP_LOGD(TAG, "    0x%s", format_hex(address).c_str());
     }
   }
 
@@ -126,8 +133,17 @@ void ShellyDallasComponent::update() {
   if (!result) {
     ESP_LOGE(TAG, "Requesting conversion failed");
     this->status_set_warning();
+										 
+								 
+	 
     return;
   }
+
+   
+					   
+							
+															 
+   
 
   for (auto *sensor : this->sensors_) {
     this->set_timeout(sensor->get_address_name(), sensor->millis_to_wait_for_conversion(), [this, sensor] {
@@ -171,7 +187,7 @@ void ShellyDallasTemperatureSensor::set_index(uint8_t index) { this->index_ = in
 uint8_t *ShellyDallasTemperatureSensor::get_address8() { return reinterpret_cast<uint8_t *>(&this->address_); }
 const std::string &ShellyDallasTemperatureSensor::get_address_name() {
   if (this->address_name_.empty()) {
-    this->address_name_ = std::string("0x") + uint64_to_string(this->address_);
+    this->address_name_ = std::string("0x") + format_hex(this->address_);
   }
 
   return this->address_name_;
@@ -187,6 +203,7 @@ bool ICACHE_RAM_ATTR ShellyDallasTemperatureSensor::read_scratch_pad() {
 
   for (unsigned char &i : this->scratch_pad_) {
     i = wire->read8();
+	 
   }
   return true;
 }
@@ -194,8 +211,19 @@ bool ShellyDallasTemperatureSensor::setup_sensor() {
   bool r;
   {
     InterruptLock lock;
+
+								 
+												  
+
     r = this->read_scratch_pad();
+						
+	 
   }
+
+			  
+ 
+											  
+									
 
   if (!r) {
     ESP_LOGE(TAG, "Reading scratchpad failed: reset");
@@ -251,6 +279,17 @@ bool ShellyDallasTemperatureSensor::setup_sensor() {
   return true;
 }
 bool ShellyDallasTemperatureSensor::check_scratch_pad() {
+																				
+							   
+
+									
+							  
+																 
+			
+			
+																 
+   
+
 #ifdef ESPHOME_LOG_LEVEL_VERY_VERBOSE
   ESP_LOGVV(TAG, "Scratch pad: %02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X.%02X (%02X)", this->scratch_pad_[0],
             this->scratch_pad_[1], this->scratch_pad_[2], this->scratch_pad_[3], this->scratch_pad_[4],
@@ -258,6 +297,11 @@ bool ShellyDallasTemperatureSensor::check_scratch_pad() {
             crc8(this->scratch_pad_, 8));
 #endif
   return crc8(this->scratch_pad_, 8) == this->scratch_pad_[8];
+																					
+								
+																						   
+   
+											
 }
 float ShellyDallasTemperatureSensor::get_temp_c() {
   int16_t temp = (int16_t(this->scratch_pad_[1]) << 11) | (int16_t(this->scratch_pad_[0]) << 3);
@@ -268,7 +312,7 @@ float ShellyDallasTemperatureSensor::get_temp_c() {
 
   return temp / 128.0f;
 }
-std::string ShellyDallasTemperatureSensor::unique_id() { return "dallas-" + uint64_to_string(this->address_); }
+std::string ShellyDallasTemperatureSensor::unique_id() { return "dallas-" + str_lower_case(format_hex(this->address_)); }
 
 }  // namespace dallas
 }  // namespace esphome
