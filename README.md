@@ -1,3 +1,9 @@
+# shelly_dallas fix
+
+This repo is only to keep shelly_dallas working.
+
+Original repo I forked from is below. 
+
 # persuader72's esphome custom components
 
 This repository contains a collection of my custom components.
