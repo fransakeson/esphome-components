@@ -40,7 +40,6 @@ void ShellyDallasComponent::setup() {
   }
 
   for (auto &address : raw_sensors) {
-//    std::string s = uint64_to_string(address);
     auto *address8 = reinterpret_cast<uint8_t *>(&address);
     if (crc8(address8, 7) != address8[7]) {
       ESP_LOGW(TAG, "Dallas device 0x%s has invalid CRC.", format_hex(address).c_str());
@@ -80,7 +79,6 @@ void ShellyDallasComponent::dump_config() {
   } else {
     ESP_LOGD(TAG, "  Found sensors:");
     for (auto &address : this->found_sensors_) {
-//      std::string s = uint64_to_string(address);
       ESP_LOGD(TAG, "    0x%s", format_hex(address).c_str());
     }
   }
